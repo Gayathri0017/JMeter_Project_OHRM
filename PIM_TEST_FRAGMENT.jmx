@@ -5,6 +5,8 @@
       <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
         <collectionProp name="Arguments.arguments"/>
       </elementProp>
+      <boolProp name="TestPlan.functional_mode">false</boolProp>
+      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
     </TestPlan>
     <hashTree>
       <TestFragmentController guiclass="TestFragmentControllerGui" testclass="TestFragmentController" testname="Test Fragment" enabled="false"/>
@@ -1021,7 +1023,7 @@
             <boolProp name="TransactionController.includeTimers">false</boolProp>
           </TransactionController>
           <hashTree>
-            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="/web/index.php/api/v2/pim/employees-259" enabled="true">
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="/web/index.php/api/v2/pim/employees-259">
               <stringProp name="HTTPSampler.domain">${url}</stringProp>
               <stringProp name="HTTPSampler.port">${port}</stringProp>
               <stringProp name="HTTPSampler.protocol">https</stringProp>
@@ -1035,7 +1037,7 @@
                   <elementProp name="" elementType="HTTPArgument">
                     <boolProp name="HTTPArgument.always_encode">false</boolProp>
                     <stringProp name="Argument.value">{&#xd;
-  &quot;firstName&quot;: &quot;DemoUser_${NameRnd}&quot;,&#xd;
+  &quot;firstName&quot;: &quot;DemoUser&quot;,&#xd;
   &quot;middleName&quot;: &quot;&quot;,&#xd;
   &quot;lastName&quot;: &quot;${LastName}&quot;,&#xd;
   &quot;empPicture&quot;: null,&#xd;
@@ -1104,7 +1106,7 @@
                 </collectionProp>
               </HeaderManager>
               <hashTree/>
-              <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extract Employee Number" enabled="true">
+              <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extract Employee Number">
                 <stringProp name="JSONPostProcessor.referenceNames">empNumber</stringProp>
                 <stringProp name="JSONPostProcessor.jsonPathExprs">$.data.empNumber</stringProp>
                 <stringProp name="JSONPostProcessor.match_numbers"></stringProp>
@@ -1112,7 +1114,7 @@
                 <stringProp name="JSONPostProcessor.defaultValues">EMP NUMBER NOT FOUND</stringProp>
               </JSONPostProcessor>
               <hashTree/>
-              <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="Supervisor Emp Number" enabled="true">
+              <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="Supervisor Emp Number">
                 <stringProp name="cacheKey">true</stringProp>
                 <stringProp name="filename"></stringProp>
                 <stringProp name="parameters"></stringProp>
@@ -1124,9 +1126,28 @@ if (vars.get(&quot;EmployeeCounter&quot;).equals(&apos;2&apos;)) {
 //    vars.put(&quot;FirstEmpNumber&quot;, vars.get(&quot;empNumber&quot;))
     props.put(&quot;SndEmpNumber&quot;, vars.get(&quot;empNumber&quot;))
 }
-props.put(&quot;FullFirstName&quot;, &quot;DemoUser_&quot; + vars.get(&quot;NameRnd&quot;))
+props.put(&quot;FullFirstName&quot;, &quot;DemoUser&quot;)
 </stringProp>
                 <stringProp name="scriptLanguage">groovy</stringProp>
+              </JSR223PostProcessor>
+              <hashTree/>
+              <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="JSR223 PostProcessor">
+                <stringProp name="scriptLanguage">groovy</stringProp>
+                <stringProp name="parameters"></stringProp>
+                <stringProp name="filename"></stringProp>
+                <stringProp name="cacheKey">true</stringProp>
+                <stringProp name="script">// Get thread number
+int userNum = Integer.parseInt(vars.get(&quot;__threadNum&quot;));
+
+// Fetch global employee number for this thread
+String empNumber = props.get(&quot;empNumber_&quot; + userNum);
+
+// Store it as a JMeter variable to use in HTTP requests
+vars.put(&quot;leaveEmpNumber&quot;, empNumber);
+
+log.info(&quot;Using Employee ID for User &quot; + userNum + &quot;: &quot; + empNumber);
+
+</stringProp>
               </JSR223PostProcessor>
               <hashTree/>
               <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="AddUser_ResponseCode_Assertion" enabled="true">
@@ -2090,7 +2111,7 @@ props.put(&quot;FullFirstName&quot;, &quot;DemoUser_&quot; + vars.get(&quot;Name
             <hashTree/>
           </hashTree>
         </hashTree>
-        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="Add_Supervisor">
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="Add_Supervisor" enabled="true">
           <boolProp name="TransactionController.parent">true</boolProp>
           <boolProp name="TransactionController.includeTimers">false</boolProp>
         </TransactionController>
@@ -2928,7 +2949,7 @@ props.put(&quot;FullFirstName&quot;, &quot;DemoUser_&quot; + vars.get(&quot;Name
             </GaussianRandomTimer>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="/web/index.php/api/v2/pim/employees/289/supervisors-295" enabled="true">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="/web/index.php/api/v2/pim/employees/289/supervisors-295">
             <stringProp name="HTTPSampler.domain">${url}</stringProp>
             <stringProp name="HTTPSampler.port">${port}</stringProp>
             <stringProp name="HTTPSampler.protocol">https</stringProp>
@@ -3012,12 +3033,12 @@ props.put(&quot;FullFirstName&quot;, &quot;DemoUser_&quot; + vars.get(&quot;Name
             <hashTree/>
           </hashTree>
         </hashTree>
-        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="Go_To_Employee_List" enabled="true">
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="Go_To_Employee_List">
           <boolProp name="TransactionController.parent">true</boolProp>
           <boolProp name="TransactionController.includeTimers">false</boolProp>
         </TransactionController>
         <hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="/web/index.php/pim/viewEmployeeList-297" enabled="true">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="/web/index.php/pim/viewEmployeeList-297">
             <stringProp name="HTTPSampler.domain">${url}</stringProp>
             <stringProp name="HTTPSampler.port">${port}</stringProp>
             <stringProp name="HTTPSampler.protocol">https</stringProp>
@@ -3573,12 +3594,12 @@ props.put(&quot;FullFirstName&quot;, &quot;DemoUser_&quot; + vars.get(&quot;Name
             <hashTree/>
           </hashTree>
         </hashTree>
-        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="Search_Employee" enabled="true">
+        <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="Search_Employee">
           <boolProp name="TransactionController.parent">true</boolProp>
           <boolProp name="TransactionController.includeTimers">false</boolProp>
         </TransactionController>
         <hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="/web/index.php/api/v2/pim/employees-304" enabled="true">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="/web/index.php/api/v2/pim/employees-304">
             <stringProp name="HTTPSampler.domain">${url}</stringProp>
             <stringProp name="HTTPSampler.port">${port}</stringProp>
             <stringProp name="HTTPSampler.protocol">https</stringProp>
@@ -3607,7 +3628,7 @@ props.put(&quot;FullFirstName&quot;, &quot;DemoUser_&quot; + vars.get(&quot;Name
             </elementProp>
           </HTTPSamplerProxy>
           <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager">
               <collectionProp name="HeaderManager.headers">
                 <elementProp name="Sec-Fetch-Mode" elementType="Header">
                   <stringProp name="Header.name">Sec-Fetch-Mode</stringProp>
@@ -3669,13 +3690,13 @@ props.put(&quot;FullFirstName&quot;, &quot;DemoUser_&quot; + vars.get(&quot;Name
               <boolProp name="ISREGEX">false</boolProp>
             </JSONPathAssertion>
             <hashTree/>
-            <GaussianRandomTimer guiclass="GaussianRandomTimerGui" testclass="GaussianRandomTimer" testname="Search_Employee-Timer" enabled="true">
+            <GaussianRandomTimer guiclass="GaussianRandomTimerGui" testclass="GaussianRandomTimer" testname="Search_Employee-Timer">
               <stringProp name="ConstantTimer.delay">1000</stringProp>
               <stringProp name="RandomTimer.range">300</stringProp>
             </GaussianRandomTimer>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="/web/index.php/api/v2/pim/employees-306" enabled="true">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="/web/index.php/api/v2/pim/employees-306">
             <stringProp name="HTTPSampler.domain">${url}</stringProp>
             <stringProp name="HTTPSampler.port">${port}</stringProp>
             <stringProp name="HTTPSampler.protocol">https</stringProp>
@@ -3794,13 +3815,13 @@ props.put(&quot;FullFirstName&quot;, &quot;DemoUser_&quot; + vars.get(&quot;Name
             <hashTree/>
           </hashTree>
         </hashTree>
-        <IfController guiclass="IfControllerPanel" testclass="IfController" testname="If Controller" enabled="true">
+        <IfController guiclass="IfControllerPanel" testclass="IfController" testname="If Controller">
           <stringProp name="IfController.condition">${__groovy(vars.getIteration() == Integer.parseInt(vars.get(&quot;loop&quot;)))}</stringProp>
           <boolProp name="IfController.evaluateAll">false</boolProp>
           <boolProp name="IfController.useExpression">true</boolProp>
         </IfController>
         <hashTree>
-          <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="Logout" enabled="true">
+          <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="Logout">
             <boolProp name="TransactionController.parent">true</boolProp>
             <boolProp name="TransactionController.includeTimers">false</boolProp>
           </TransactionController>
